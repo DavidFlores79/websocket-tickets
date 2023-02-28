@@ -1,12 +1,22 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { socketController } = require('../sockets/controller');
 
 
 class Server {
   constructor() {
     this.app = express();
     this.port = process.env.PORT;
+
+    this.server = require('http').createServer( this.app );
+
+    this.io = require('socket.io')( this.server );
+
+    // io.on('connection', () => {});
+    // server.listen(3000);
+
+
 
     //conectar a DB
     // this.conectarDB();
@@ -16,6 +26,9 @@ class Server {
 
     //rutas de mi aplicacion
     this.routes();
+
+    //Eventos de Sockets
+    this.sockets();
   }
 
   middlewares() {
@@ -45,8 +58,13 @@ class Server {
   routes() {
   }
 
+  sockets() {
+    this.io.on('connection', socketController);
+  }
+
   listen() {
-    this.app.listen(this.port, () => {
+    // levantar el server no el app
+    this.server.listen(this.port, () => {
       console.log(`WebsocketServer listo en el puerto ${this.port}`);
     });
   }
